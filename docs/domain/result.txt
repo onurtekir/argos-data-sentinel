@@ -1,0 +1,18 @@
+RESULT
+- Result of the check
+- Example
+    - Null ratio %0.02, passed
+
+PARAMETERS / VALUES
+
+Field                           Description
+--------------------------------------------------------------------------------------------------------
+check_name                      Result of which check?
+status                          PASS / FAIL / ERROR
+message                         Message of the result
+metrics                         Necessary metrics
+started_at                      Datetime value of the start time
+ended_at                        Datetime value of the end time
+duration                        Duration in seconds
+
+

@@ -1,0 +1,15 @@
+DATA_SOURCE
+- Definition of the source. Table or Query
+
+PARAMETERS / VALUES
+
+Field                           Description
+--------------------------------------------------------------------------------------------------------
+name                            Name of the data source ("orders_table", "revenue")
+type                            TABLE, QUERY
+query                           SQL query (Mandatory, if the type is QUERY)
+table                           Table name [<project_id>.<dataset_id>.<table_id>] (Mandatory, if the type is TABLE)
+description                     (Optional) Description of the data source
+params                          (Optional) Query parameters (Jinja enabled)
+
+

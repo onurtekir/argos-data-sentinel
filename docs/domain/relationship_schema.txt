@@ -1,0 +1,7 @@
+Suite
+ ├── Check (bir tabloya ait tek kural)
+ │     ├── DataSource - Table or Query
+ │     ├── Result (çalıştırıldığında üretilir)
+ │     │      └── Metric (ölçüm değerleri)
+ │     └── Severity
+ └── Tags, Owner, Table

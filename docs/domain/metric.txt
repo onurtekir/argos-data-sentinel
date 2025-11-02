@@ -1,0 +1,18 @@
+METRIC
+- A metric value like number, duration, ratio, etc.
+- Every single results might generate more than one metric
+- Example
+    - null_ratio = 0.002
+    - row_count = 1523000
+    - freshness_age_seconds = 84000
+
+PARAMETERS / VALUES
+
+Field                           Description
+--------------------------------------------------------------------------------------------------------
+name                            Name of the metric ("null_ratio")
+value                           Numeric value
+unit                            "seconds", "rows", "ratio", etc.
+labels                          key-value metadata (table, column, project)
+
+
