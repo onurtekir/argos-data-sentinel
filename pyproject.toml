@@ -1,0 +1,55 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "argos-data-sentinel"
+version = "0.1.0"
+description = "Argos Data Sentinel (ADS): Data Quality and Observability platform for BigQuery"
+authors = [
+  { name = "Onur Tekir", email = "onurtekir@gmail.com" }
+]
+license = { text = "Apache-2.0" }
+requires-python = ">=3.10"
+readme = "README.md"
+
+dependencies = [
+  "pydantic>=2.0",
+  "google-cloud-bigquery>=3.17.0",
+  "click>=8.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "pytest-cov",
+  "black",
+  "ruff",
+  "mypy",
+  "pre-commit",
+]
+
+[tool.black]
+line-length = 150
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 150
+select = ["E", "F", "I"]
+ignore = ["E501"]
+exclude = ["__init__.py"]
+
+[tool.mypy]
+python_version = "3.10"
+warn_unused_configs = true
+warn_return_any = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --tb=short"
+
+[project.scripts]
+ads = "ads.cli.main:app"

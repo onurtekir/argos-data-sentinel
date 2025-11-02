@@ -1,0 +1,7 @@
+Data Source (BigQuery Table)
+↓
+Suite (Check suite for the source)
+↓
+Check (One single check. Eg.: "id column cannot be null")
+↓
+Result (Result of the check)

@@ -1,0 +1,16 @@
+SUITE
+- Collection of the checks
+- Example
+    - Suite = {table: "orders", checks: [Check1, Check2, Check3, ...]}
+
+PARAMETERS / VALUES
+
+Field                           Description
+--------------------------------------------------------------------------------------------------------
+name                            Name of the suite ( "orders_quality" )
+table                           Source table
+checks                          List of the checks
+tags                            Domain, owners, etc.
+owner                           (Optional) Team/Email
+
+

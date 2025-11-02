@@ -1,0 +1,18 @@
+CHECK
+- One single check that is running on a source
+- Example
+    - expect_no_nulls(<column_name>)
+    - expect_row_count(min_rows=1000)
+
+PARAMETERS / VALUES
+
+Field                           Description
+--------------------------------------------------------------------------------------------------------
+id                              Unique identifier (uuid)
+name                            Name of the check ("no_nulls_user_id")
+data_source                     Data Source object
+description                     (Optional) Description of the check
+severity                        INFO / WARN / ERROR / CRITICAL
+params                          Parameters of the rule ( like threshold, column_name, etc. )
+type                            Type of the check ( null_check, row_count_check )
+

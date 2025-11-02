@@ -1,0 +1,11 @@
+SEVERITY
+- Enum that shows the severity level
+
+Severity                           Description                          Suggested Action
+--------------------------------------------------------------------------------------------------------
+INFO                               Information related                  Report
+WARN                               Minor violation                      Slack notification
+ERROR                              High violation                       Alert + Pipeline fail
+CRITICAL                           Critical violation                   Pager / Mail trigger
+
+
