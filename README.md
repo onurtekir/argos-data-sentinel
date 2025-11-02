@@ -1,7 +1,7 @@
 # Argos Data Sentinel
 
 <p align="center">
-  <img src="assets/logo.png" alt="Argos Data Sentinel Logo" width="200" />
+  <img src="assets/argos_data_sentinel_icon.png" alt="Argos Data Sentinel Logo" width="200" />
 </p>
 
 ## 🛡️ Overview
