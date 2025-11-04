@@ -1,13 +1,7 @@
-import importlib
-import inspect
-import pkgutil
 import re
-from types import ModuleType
 from typing import List, Any, Dict, Type
 
-import regex
-from torch.nn.functional import bilinear
-
+from ads.core.base import AdsBase
 from ads.core.rules.builtin.accepted_values_rule import AcceptedValuesRule
 from ads.core.rules.builtin.constant_colum_rule import ConstantColumnRule
 from ads.core.rules.builtin.duplicate_rows_rule import DuplicateRowsRule
@@ -20,10 +14,9 @@ from ads.core.rules.builtin.regex_match_rule import RegexMatchRule
 from ads.core.rules.builtin.row_count_rule import RowCountRule
 from ads.core.rules.builtin.unique_rule import UniqueRule
 from ads.core.rules.builtin.value_range_rule import ValueRangeRule
-from ads.core.rules.rule_base import RuleTemplateBase
 
 
-class CoreRulesetRegistry:
+class CoreRulesetRegistry(AdsBase):
     """Registry for all built-in rule templates."""
     
     @property

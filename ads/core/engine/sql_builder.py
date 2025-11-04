@@ -1,11 +1,11 @@
 from typing import List
 
-
+from ads.core.base import AdsBase
 from ads.core.models import Suite, Check, DataSourceType
 from ads.helpers.helper_library import HelperLibrary
 
 
-class SQLBuilder:
+class SQLBuilder(AdsBase):
     """
     Responsible for generating a unified BigQuery SQL statement
     that combines all checks defined within a Suite.

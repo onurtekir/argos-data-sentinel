@@ -2,11 +2,12 @@ from typing import Optional, Dict, Any, ClassVar, List
 
 from pydantic import Field, BaseModel, ConfigDict
 
+from ads.core.base import AdsBase
 from ads.core.rules.exceptions import RuleParameterError
 from ads.helpers.helper_library import HelperLibrary
 
 
-class RuleTemplateBase(BaseModel):
+class RuleTemplateBase(BaseModel, AdsBase):
     """
     Base class for all rule templates.
     All custom rule templates must inherit from this.

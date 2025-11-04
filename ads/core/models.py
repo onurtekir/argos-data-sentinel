@@ -3,27 +3,8 @@ from enum import Enum
 from typing import Optional, Literal, List, Dict, Any
 from pydantic import BaseModel, Field
 
-from ads.core.rules.rule_base import RuleTemplateBase
-
-
-# region DataSourceType
-class DataSourceType(Enum):
-    """
-    Enumeration representing the type of data source.
-
-    DataSourceType indicates that the type of data source ("table", "query").
-
-    Statuses:
-        - TABLE:   Table (<project>.<dataset>.<table>)
-        - QUERY:   SQL query
-
-    Example:
-        >>> DataSourceType.QUERY
-        <DataSourceType.QUERY: 'QUERY'>
-    """
-    TABLE = "TABLE"
-    QUERY = "QUERY"
-# endregion
+from ads.core.enums import DataSourceType, Severity, CheckStatus, SuiteRunStatus
+from ads.core.rules.rule_template_base import RuleTemplateBase
 
 # region DataSource
 class DataSource(BaseModel):
@@ -51,55 +32,6 @@ class DataSource(BaseModel):
     table: Optional[str] = Field(None, description="Fully qualified table name if type=DataSourceType.TABLE")
     query: Optional[str] = Field(None, description="SQL query text if type=DataSourceType.QUERY")
     description: Optional[str] = Field(None, description="Optional description of context of the data source")
-# endregion
-
-# region CheckStatus
-class CheckStatus(Enum):
-    """
-    Enumeration representing the status of a check.
-
-    CheckStatus indicates that the check passed, failed or with error.
-
-    Statuses:
-        - PASS:    Check passed
-        - FAIL:    Check failed
-        - ERROR:   Check exited with error
-
-    Example:
-        >>> CheckStatus.PASS
-        <CheckStatus.PASS: 'PASS'>
-    """
-    PASS = "PASS"
-    FAIL = "FAIL"
-    ERROR = "ERROR"
-
-    @property
-    def is_fail(self) -> bool:
-        return self in (CheckStatus.FAIL, CheckStatus.ERROR)
-# endregion
-
-# region Severity
-class Severity(Enum):
-    """
-    Enumeration representing the severity level of a data quality check.
-
-    Severity indicates how critical a failed check is and determines
-    what type of action or alert should be triggered when it fails.
-
-    Levels:
-        - INFO:    Informational only; used for reporting or logging.
-        - WARN:    Minor issue; should alert but does not block execution.
-        - ERROR:   Significant issue; may block downstream jobs or raise alerts.
-        - CRITICAL: Severe issue requiring immediate attention or manual intervention.
-
-    Example:
-        >>> Severity.ERROR
-        <Severity.ERROR: 'ERROR'>
-    """
-    INFO = "INFO"
-    WARN = "WARN"
-    ERROR = "ERROR"
-    CRITICAL = "CRITICAL"
 # endregion
 
 # region RuleTemplate
@@ -241,9 +173,37 @@ class Result(BaseModel):
     """
     check_name: str = Field(..., description="The name of the check that produced this result")
     status: CheckStatus = Field(CheckStatus.ERROR, description="CheckStatus of this result")
+    severity: Severity = Field(Severity.WARN, description="Severity level of this result")
     message: Optional[str] = Field(None, description="Optional descriptive message or context")
     value: Optional[float] = Field(None, description="Numeric value evaluated for threshold comparison")
     threshold_lower: Optional[float] = Field(None, description="Lower boundary of threshold")
     threshold_upper: Optional[float] = Field(None, description="Upper boundary of threshold")
-    severity: Severity = Field(Severity.WARN, description="Severity level of this result")
+# endregion
+
+# region ResultsMetadata
+class ResultsMetadata(BaseModel):
+    """
+    Represents metadata for a full Suite execution.
+
+    Captures information about:
+        - timing
+        - BigQuery job statistics
+        - dry-run validation
+        - execution status and errors
+    """
+    job_id: Optional[str] = Field(None, description="BigQuery job ID")
+    started_at: Optional[float] = Field(None, description="Query start timestamp (EPOCH seconds)")
+    ended_at: Optional[float] = Field(None, description="Query end timestamp (EPOCH seconds)")
+    duration_ms: Optional[float] = Field(None, description="Total duration in milliseconds")
+    bytes_processed: Optional[int] = Field(None, description="Total bytes processed by BigQuery job")
+    cache_hit: Optional[bool] = Field(None, description="BigQuery result cache was used, or not")
+    validate_first: Optional[bool] = Field(None, description="Validate script before execution, or not")
+    validate_only: Optional[bool] = Field(None, description="ONLY validate script, or not")
+    status: Optional[SuiteRunStatus] = Field(
+        SuiteRunStatus.UNKNOWN,
+        description=f"Suite execution status ({', '.join([status.name for status in SuiteRunStatus])})"
+    )
+    errors: Optional[List[str]] = Field(default_factory=list, description="List of error messages, if any")
+    extra: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Optional custom metadata fields")
+
 # endregion

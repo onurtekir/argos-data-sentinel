@@ -1,10 +1,15 @@
-import datetime
-from typing import Any, Dict, List, Optional
+import logging
 
+from ads.core.base import AdsBase
+
+logger = logging.getLogger(__name__)
+
+
+from typing import Any, Dict, List, Optional
 from ads.core.models import Suite, Result, CheckStatus, Check, Threshold
 
 
-class ResultParser:
+class ResultParser(AdsBase):
     """
     Parses raw BigQuery query results into structured Result objects.
 
@@ -35,15 +40,19 @@ class ResultParser:
             check = self._get_check_by_name(suite=self.suite, check_name=check_name)
 
             if not check:
-                # TODO : Log undefined checks
+                self.logger.warning(f"ResultParser: No check found for '{check_name}' in suite '{self.suite.name}'")
                 continue
 
             value = self._extract_value(row)
             threshold: Threshold = check.threshold or Threshold()
 
-            is_passed = threshold.is_within(value)
-            status = CheckStatus.PASS if is_passed else CheckStatus.FAIL
-            message = self._build_message(check_name=check_name, value=value, threshold=threshold, status=status)
+            if value is None:
+                status = CheckStatus.ERROR
+                message = "Check value is invalid!"
+            else:
+                is_passed = threshold.is_within(value)
+                status = CheckStatus.PASS if is_passed else CheckStatus.FAIL
+                message = self._build_message(check_name=check_name, value=value, threshold=threshold, status=status)
 
             result = Result(
                 check_name=check_name,
@@ -64,12 +73,12 @@ class ResultParser:
                 if status == CheckStatus.PASS
                 else f"{check_name}: value {value} outside {threshold.describe()}")
 
-    def _extract_value(self, row: Dict[str, Any]) -> float:
+    def _extract_value(self, row: Dict[str, Any]) -> Optional[float]:
         """Extracts the primary numeric value (violations, ratio, etc.)."""
         for key in ["check_value", "value", "metric_value", "ratio", "count", "row_count"]:
             if key in row:
                 return float(row[key])
-        return 0.0 # TODO : That might be changed as None to avoid confusion
+        return None
 
     def _get_check_by_name(self, suite: Suite, check_name: str) -> Optional[Check]:
         """Helper to fetch the matching Check definition from a Suite"""

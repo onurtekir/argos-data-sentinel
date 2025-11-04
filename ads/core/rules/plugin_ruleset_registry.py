@@ -3,10 +3,12 @@ import inspect
 import pkgutil
 from types import ModuleType
 from typing import List, Any, Dict, Type
-from ads.core.rules.rule_base import RuleTemplateBase
+
+from ads.core.base import AdsBase
+from ads.core.rules.rule_template_base import RuleTemplateBase
 
 
-class PluginRulesetRegistry:
+class PluginRulesetRegistry(AdsBase):
     """
     Dynamic registry for all plugin rule templates.
 

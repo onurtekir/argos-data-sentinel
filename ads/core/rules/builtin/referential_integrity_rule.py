@@ -1,6 +1,6 @@
 from typing import ClassVar, List
 
-from ads.core.rules.rule_base import RuleTemplateBase
+from ads.core.rules.rule_template_base import RuleTemplateBase
 
 
 class ReferentialIntegrityRule(RuleTemplateBase):
