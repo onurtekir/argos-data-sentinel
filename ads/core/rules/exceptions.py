@@ -1,7 +1,9 @@
 from typing import List
 
+from ads.core.base import AdsBase
 
-class RuleParameterError(ValueError):
+
+class RuleParameterError(ValueError, AdsBase):
     """Raised when a required rule parameter is missing or invalid."""
 
     def __init__(self, rule_name: str, missing_params: List[str]):

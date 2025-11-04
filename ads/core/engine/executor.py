@@ -3,10 +3,13 @@ from typing import Optional, Tuple, List, Dict, Any
 
 from google.cloud import bigquery
 
+from ads.core.base import AdsBase
+from ads.core.enums import SuiteRunStatus
+from ads.core.models import ResultsMetadata
 from ads.helpers.helper_library import HelperLibrary
 
 
-class Executor:
+class Executor(AdsBase):
     """
     Responsible for executing a compiled BigQuery SQL statement and
     returning raw results and execution metadata.
@@ -58,8 +61,9 @@ class Executor:
     def execute(self,
                 sql_query: str,
                 flatten_results: Optional[bool] = False,
-                dry_run_first: Optional[bool] = True,
-                dry_run_only: Optional[bool] = False) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+                validate_first: Optional[bool] = True,
+                validate_only: Optional[bool] = False,
+                extra: Optional[Dict[str, Any]] = None) -> Tuple[ResultsMetadata, List[Dict[str, Any]]]:
         """
         Executes the given SQL statement in BigQuery
 
@@ -70,62 +74,47 @@ class Executor:
 
         # region Initialize connection and prepare base metadata
         client = self._connect()
-        metadata: Dict[str, Any] = {
-            "job_id": None,
-            "duration_ms": None,
-            "bytes_processed": None,
-            "cache_hit": None,
-            "dry_run": dry_run_only,
-            "status": "UNKNOWN",
-            "errors": [],
-        }
+        metadata: ResultsMetadata = ResultsMetadata(
+            validate_first=validate_first,
+            validate_only=validate_only,
+            started_at=time.time(),
+            extra=extra
+        )
         # endregion
 
         # region Prepare and execute dry_run
-        if dry_run_only or dry_run_first:
+        if validate_only or validate_first:
             try:
                 dry_job_config = bigquery.QueryJobConfig(dry_run=True, use_query_cache=False)
                 dry_job = client.query(query=sql_query, job_config=dry_job_config)
-                metadata.update({
-                    "job_id": dry_job.job_id,
-                    "bytes_processed": dry_job.total_bytes_processed,
-                    "cache_hit": dry_job.cache_hit,
-                    "status": "DRY_RUN_SUCCESS"
-                })
+                metadata.job_id = dry_job.job_id
+                metadata.bytes_processed = dry_job.total_bytes_processed
+                metadata.cache_hit = dry_job.cache_hit
+                metadata.status = SuiteRunStatus.VALIDATION_SUCCESS
             except Exception as e:
-                metadata.update({
-                    "status": "DRY_RUN_FAILED",
-                    "errors": [str(e)]
-                })
-                return [], metadata
+                metadata.status = SuiteRunStatus.VALIDATION_FAILED
+                metadata.errors = [str(e)]
+                return metadata, []
 
-            if dry_run_only:
-                return [], metadata
+            if validate_only:
+                return metadata, []
         # endregion
 
         # region Execute Query
         job_config = bigquery.QueryJobConfig
-        start_time = time.time()
+        rows: List[Dict[str, Any]] = []
         try:
 
             # region Execute actual query and return results
             job = client.query(query=sql_query, job_config=job_config)
             result = job.result()
-            end_time = time.time()
-            duration_ms = round((end_time - start_time) * 1000, 2)
 
-            metadata.update({
-                "job_id": job.job_id,
-                "start_time": start_time,
-                "end_time": end_time,
-                "duration_ms": duration_ms,
-                "bytes_processed": getattr(job, "total_bytes_processed", None),
-                "cache_hit": getattr(job, "cache_hit", None),
-                "status": "SUCCESS"
-            })
+            metadata.job_id = job.job_id
+            metadata.bytes_processed = job.total_bytes_processed
+            metadata.cache_hit = job.cache_hit
+            metadata.status = SuiteRunStatus.SUCCESS
 
             rows = self._to_dict_rows(result=result, flatten=flatten_results)
-            return rows, metadata
             # endregion
 
         except Exception as e:
@@ -139,16 +128,15 @@ class Executor:
             # endregion
 
             # region Update metadata and return result
-            metadata.update({
-                "job_id": getattr(job, "job_id", None),
-                "start_time": start_time,
-                "end_time": time.time(),
-                "status": "FAILED",
-                "errors": [str(e)] + errors
-            })
-            return [], metadata
+            metadata.job_id = getattr(job, "job_id", None)
+            metadata.status = SuiteRunStatus.FAILED
+            metadata.errors = [str(e) + errors]
             # endregion
 
+        finally:
+            metadata.ended_at = time.time()
+            metadata.duration_ms = round((metadata.ended_at - metadata.started_at) * 1000, 2)
+            return metadata, rows
         # endregion
 
     def _flatten_rows(self,

@@ -1,9 +1,10 @@
+from ads.core.base import AdsBase
 from ads.core.rules.core_ruleset_registry import CoreRulesetRegistry
 from ads.core.rules.plugin_ruleset_registry import PluginRulesetRegistry
-from ads.core.rules.rule_base import RuleTemplateBase
+from ads.core.rules.rule_template_base import RuleTemplateBase
 
 
-class RulesetRegistry:
+class RulesetRegistry(AdsBase):
     """Unified registry for Core Ruleset and Plugin Ruleset(s)"""
 
     def __init__(self):
