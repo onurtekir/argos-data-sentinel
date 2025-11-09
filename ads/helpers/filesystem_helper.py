@@ -6,3 +6,6 @@ class FileSystemHelper:
     def create_parent_directories(self, path: Path) -> Path:
         path.mkdir(parents=True, exist_ok=True)
         return path
+
+    def file_exists(self, path: Path) -> bool:
+        return path.exists()
