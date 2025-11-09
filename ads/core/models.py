@@ -146,6 +146,7 @@ class Suite(BaseModel):
         Checks: [null_check, positive_revenue_check, volume_check]
     """
     name: str = Field(..., description="Unique name of the suite")
+    description: Optional[str] = Field(None, description="Description of the suite")
     domain: Optional[str] = Field(None, description="Optional business domain or area")
     owner: Optional[str] = Field(None, description="Optional owner of team responsible for this suite")
     data_source: DataSource = Field(..., description="The shared data source for all checks şn this suite")
@@ -172,6 +173,8 @@ class Result(BaseModel):
     for persistence or monitoring.
     """
     check_name: str = Field(..., description="The name of the check that produced this result")
+    check_description: Optional[str] = Field(None, description="Optional human-readable description of this result")
+    check_params: Optional[Dict[str, Any]] = Field(None, description="Parameter substitutions for check")
     status: CheckStatus = Field(CheckStatus.ERROR, description="CheckStatus of this result")
     severity: Severity = Field(Severity.WARN, description="Severity level of this result")
     message: Optional[str] = Field(None, description="Optional descriptive message or context")
@@ -191,6 +194,8 @@ class ResultsMetadata(BaseModel):
         - dry-run validation
         - execution status and errors
     """
+    suite_name: str = Field(..., description="Suite name")
+    suite_description: Optional[str] = Field(None, description="Suite description")
     job_id: Optional[str] = Field(None, description="BigQuery job ID")
     started_at: Optional[float] = Field(None, description="Query start timestamp (EPOCH seconds)")
     ended_at: Optional[float] = Field(None, description="Query end timestamp (EPOCH seconds)")
@@ -205,5 +210,4 @@ class ResultsMetadata(BaseModel):
     )
     errors: Optional[List[str]] = Field(default_factory=list, description="List of error messages, if any")
     extra: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Optional custom metadata fields")
-
 # endregion

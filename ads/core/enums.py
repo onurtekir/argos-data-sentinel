@@ -84,4 +84,5 @@ class ResultExportType(Enum):
     CSV = "CSV"
     SQLITE = "SQLITE"
     PROMETHEUS = "PROMETHEUS"
+    HTML = "HTML"
 # endregion
