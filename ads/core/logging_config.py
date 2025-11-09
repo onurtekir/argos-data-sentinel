@@ -6,12 +6,15 @@ from typing import Optional
 def setup_logging(level: Optional[str] = None):
     env_log_level = os.getenv("ADS_LOG_LEVEL", "").upper()
     if env_log_level:
-        level = getattr(logging, env_log_level, logging.INFO)
+        log_level = getattr(logging, env_log_level, logging.INFO)
     else:
-        level = getattr(logging, level, logging.INFO)
+        if level:
+            log_level = getattr(logging, level, logging.INFO)
+        else:
+            log_level = logging.INFO
 
     logging.basicConfig(
-        level=level,
+        level=log_level,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         datefmt="%Y-%m-%d %H:%M:%S",
     )

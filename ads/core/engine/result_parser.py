@@ -24,23 +24,16 @@ class ResultParser(AdsBase):
         results = parser.parse(rows, suite)
     """
 
-    def __init__(self, suite: Suite):
-        self._suite = suite
-
-    @property
-    def suite(self) -> Suite:
-        return self._suite
-
-    def parse(self, rows: List[Dict[str, Any]]) -> List[Result]:
+    def parse(self, suite: Suite, rows: List[Dict[str, Any]]) -> List[Result]:
         """Main entry point: converts raw rows into Result objects."""
         parsed_results: List[Result] = []
 
         for row in rows:
             check_name = row["check_name"]
-            check = self._get_check_by_name(suite=self.suite, check_name=check_name)
+            check = self._get_check_by_name(suite=suite, check_name=check_name)
 
             if not check:
-                self.logger.warning(f"ResultParser: No check found for '{check_name}' in suite '{self.suite.name}'")
+                self.logger.warning(f"ResultParser: No check found for '{check_name}' in suite '{suite.name}'")
                 continue
 
             value = self._extract_value(row)

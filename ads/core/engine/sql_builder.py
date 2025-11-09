@@ -81,7 +81,7 @@ class SQLBuilder(AdsBase):
         sql_body = check.rule_template.render(
             helpers=self.helpers,
             extra_params={
-                **check.params,
+                **(check.params or {}),
                 "check_name": check.name,
                 "suite_name": self.suite.name,
                 "column_name": check.column_name

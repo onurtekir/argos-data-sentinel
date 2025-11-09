@@ -5,7 +5,7 @@ from google.cloud import bigquery
 
 from ads.core.base import AdsBase
 from ads.core.enums import SuiteRunStatus
-from ads.core.models import ResultsMetadata
+from ads.core.models import ResultsMetadata, Suite
 from ads.helpers.helper_library import HelperLibrary
 
 
@@ -59,6 +59,7 @@ class Executor(AdsBase):
         return self._client
 
     def execute(self,
+                suite: Suite,
                 sql_query: str,
                 flatten_results: Optional[bool] = False,
                 validate_first: Optional[bool] = True,
@@ -75,6 +76,8 @@ class Executor(AdsBase):
         # region Initialize connection and prepare base metadata
         client = self._connect()
         metadata: ResultsMetadata = ResultsMetadata(
+            suite_name=suite.name,
+            suite_description=suite.description,
             validate_first=validate_first,
             validate_only=validate_only,
             started_at=time.time(),

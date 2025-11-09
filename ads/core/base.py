@@ -1,6 +1,8 @@
 import logging
 from abc import ABC
 
+from ads.helpers.helper_library import HelperLibrary
+
 
 class AdsBase(ABC):
     """
@@ -11,10 +13,15 @@ class AdsBase(ABC):
         - potential future hooks (timing, telemetry, etc.)
     """
 
-    def __repr__(self, *args, **kwargs):
-        self._logger = logging.getLogger(self.__class__.__module__)
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self._logger = logging.getLogger(self.__class__.__module__)
+        self._helpers = HelperLibrary()
 
     @property
     def logger(self) -> logging.Logger:
         return self._logger
+
+    @property
+    def helpers(self) -> HelperLibrary:
+        return self._helpers

@@ -1,4 +1,3 @@
-import time
 from typing import Optional, List, Dict, Any, Tuple
 
 from ads.core.base import AdsBase
@@ -6,6 +5,7 @@ from ads.core.engine.executor import Executor
 from ads.core.engine.result_parser import ResultParser
 from ads.core.engine.sql_builder import SQLBuilder
 from ads.core.enums import ResultExportType, CheckStatus, Severity
+from ads.core.exporters.exporter_registry import ExporterRegistry
 from ads.core.models import Suite, Result, ResultsMetadata
 from ads.helpers.helper_library import HelperLibrary
 
@@ -25,6 +25,7 @@ class SentinelRunner(AdsBase):
     def __init__(self,
                  project_id: str,
                  location: Optional[str] = None):
+        super().__init__()
         self._helpers = HelperLibrary()
         self._project_id = project_id
         self._location = location
@@ -66,6 +67,7 @@ class SentinelRunner(AdsBase):
         sql_query = builder.build()
 
         metadata, rows = self._executor.execute(
+            suite=suite,
             sql_query=sql_query,
             flatten_results=flatten_results,
             validate_first=validate_first,
@@ -75,7 +77,7 @@ class SentinelRunner(AdsBase):
         # endregion
 
         # region Parse results
-        results = self._result_parser.parse(rows=rows)
+        results = self._result_parser.parse(suite=suite, rows=rows)
         # endregion
 
         return metadata, results
@@ -90,8 +92,9 @@ class SentinelRunner(AdsBase):
         raise NotImplementedError("To be implemented later")
 
     def export_results(self,
+                       metadata: ResultsMetadata,
                        results: List[Result],
-                       export_format: Optional[ResultExportType] = ResultExportType.JSON,
+                       export_type: Optional[ResultExportType] = ResultExportType.JSON,
                        destination: Optional[str] = None) -> None:
         """
         Exports a list of Result objects to the specified format.
@@ -101,7 +104,11 @@ class SentinelRunner(AdsBase):
             - SQLite (planned)
             - Prometheus (planned)
         """
-        raise NotImplementedError("Exporting logic will be added later")
+        exporter = ExporterRegistry().get(export_type=export_type)
+        exported_path = exporter.export(metadata=metadata,
+                                        results=results,
+                                        destination=destination)
+        self.logger.info(f"Export completed: {export_type.name} → {exported_path}")
 
     def __repr__(self):
         return f"<SentinelRunner project='{self.project_id}' location='{self.location}'"
