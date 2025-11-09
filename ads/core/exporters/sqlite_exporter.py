@@ -17,19 +17,23 @@ class SQLiteExporter(ExporterBase):
     The exporter automatically initializes schema if the database file does not exist.
     """
 
+    TEMPLATE_DIR = Path(__file__).parent / "templates" / "sqlite_exporter"
+    TEMPLATE_RUNS_SQL_FILE = "table__ads_runs.sql"
+    TEMPLATE_RESULTS_SQL_FILE = "table__ads_results.sql"
+
     def _ensure_database(self, db_path: Path, runs_table: str, results_table: str) -> None:
         """Initializes database and creates schema if not present."""
         try:
             # region Load ADS Runs SQL query
             sql_ads_runs = self._load_sql_template(
-                sql_path=Path("templates/sqlite_exporter/table__ads_runs.sql"),
+                sql_path=self.TEMPLATE_DIR / self.TEMPLATE_RUNS_SQL_FILE,
                 params={"ads_runs_table_name": runs_table}
             )
             # endregion
 
             # region Load ADS Results SQL query
             sql_ads_results = self._load_sql_template(
-                sql_path=Path("templates/sqlite_exporter/table__ads_results.sql"),
+                sql_path=self.TEMPLATE_DIR / self.TEMPLATE_RESULTS_SQL_FILE,
                 params={"ads_results_table_name": results_table}
             )
             # endregion
